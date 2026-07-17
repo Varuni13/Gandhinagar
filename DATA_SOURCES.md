@@ -12,9 +12,9 @@ summary for answering "where did we get this data" without digging through the r
 | **District Boundary** (not currently shown on map) | Official Government of Gujarat district shapefile, LGD/2011-Census coded | Official, authoritative | `State_LGD: 24`, `Dist_LGD: 446`, Census-2011 `stcode11: 24` / `dtcode11: 473` — standard join keys for Indian government open-data portals (data.gov.in, PMGSY, etc.). Kept in `data/` as reference; removed from the map itself due to UX issues (auto-zoom, scale mismatch with city-level layers). |
 | **Live traffic** | [TomTom Traffic API](https://developer.tomtom.com/) | Commercial API, requires key | 30 monitored points across Gandhinagar, collected every 15 min (peak) / 60 min (off-peak) by `traffic_collector/collect.py`, running continuously in production as `gandhinagar-collector.service`. |
 | **Basemaps** | Google Maps (roadmap/satellite), OpenStreetMap, CartoDB Voyager | Mixed (commercial + open) | Google Maps requires `VITE_GOOGLE_MAPS_API_KEY` (see `.env.example`). |
-| **Roads** | OpenStreetMap via Overpass API | Open, crowdsourced | Full vehicle road network (motorway down to residential/service), city-scoped bbox. ~10,100 segments, 3.1MB — deliberately complete rather than trimmed for size, per team decision. |
-| **Railway** | OpenStreetMap via Overpass API | Open, crowdsourced | Indian Railways only (Kalol Junction, Sabarmati Junction, Naroda), wider bbox since corridors extend beyond the city. Separate layer from Metro — see below. |
-| **Metro** | OpenStreetMap via Overpass API | Open, crowdsourced | Gandhinagar/Ahmedabad Metro (Gujarat Metro Rail Corporation) — GIFT City, Mahatma Mandir, Sachivalaya, Akshardham, etc. Split from Railway by OSM tags (`railway=subway`, `station=subway`, `network` containing "Metro") so the two systems don't render as one mixed layer. |
+| **Roads** | OpenStreetMap via Overpass API | Open, crowdsourced | Full vehicle road network (motorway down to residential/service), clipped to the actual city boundary polygon. 6,614 segments, ~1.8MB — deliberately complete rather than trimmed for size, per team decision. |
+| **Railway** | OpenStreetMap via Overpass API | Open, crowdsourced | Indian Railways only (Western Railway), clipped to the city boundary — 34 line segments + Gandhinagar Capital station. Separate layer from Metro — see below. |
+| **Metro** | OpenStreetMap via Overpass API | Open, crowdsourced | Gandhinagar/Ahmedabad Metro (Gujarat Metro Rail Corporation), clipped to the city boundary — 11 line segments + 12 in-city stations (Sachivalaya, Akshardham, Mahatma Mandir, Infocity, etc.). Split from Railway by OSM tags (`railway=subway`, `station=subway`, `network` containing "Metro") so the two systems don't render as one mixed layer. |
 
 ## Deployment: these files are NOT in git
 
@@ -26,8 +26,8 @@ without them will silently produce a dashboard missing those layers.
 | Path | Size (approx) | Needed for |
 |---|---|---|
 | `public/transport/Gandhinagar_roads.geojson` | ~1.8MB | Roads layer |
-| `public/transport/Gandhinagar_railway.geojson` | ~200KB | Railway layer |
-| `public/transport/Gandhinagar_metro.geojson` | ~100KB | Metro layer |
+| `public/transport/Gandhinagar_railway.geojson` | ~12KB | Railway layer |
+| `public/transport/Gandhinagar_metro.geojson` | ~11KB | Metro layer |
 | `public/DEM/Gandhinagar_dem_overlay.png` | ~1MB | Terrain/DEM overlay |
 | `data-raw/*` (everything except `README.md`) | up to 43MB each | Reference/provenance only — not read by the running app, safe to skip copying unless you're re-running a conversion script |
 
