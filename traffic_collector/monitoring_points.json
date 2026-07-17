@@ -1,0 +1,182 @@
+{
+  "koba_circle": {
+    "name": "Koba Circle",
+    "lat": 23.1967,
+    "lon": 72.6523,
+    "zone": "Entry/Exit"
+  },
+  "sargasan_circle": {
+    "name": "Sargasan Circle",
+    "lat": 23.1889,
+    "lon": 72.6267,
+    "zone": "Entry/Exit"
+  },
+  "infocity_circle": {
+    "name": "Infocity Circle",
+    "lat": 23.1748,
+    "lon": 72.6312,
+    "zone": "Entry/Exit"
+  },
+  "pethapur_entry": {
+    "name": "Pethapur Entry",
+    "lat": 23.2512,
+    "lon": 72.6712,
+    "zone": "Entry/Exit"
+  },
+  "nh147_chandkheda": {
+    "name": "NH-147 Chandkheda Junction",
+    "lat": 23.1156,
+    "lon": 72.6089,
+    "zone": "Entry/Exit"
+  },
+  "vaishnodevi_circle": {
+    "name": "Vaishnodevi Circle",
+    "lat": 23.1423,
+    "lon": 72.6234,
+    "zone": "Entry/Exit"
+  },
+  "chiloda_road_entry": {
+    "name": "Chiloda Road Entry",
+    "lat": 23.2634,
+    "lon": 72.6845,
+    "zone": "Entry/Exit"
+  },
+  "manipur_circle": {
+    "name": "Manipur Circle",
+    "lat": 23.1534,
+    "lon": 72.5978,
+    "zone": "Entry/Exit"
+  },
+  "ch_road_sector5": {
+    "name": "CH Road Sector 5",
+    "lat": 23.2089,
+    "lon": 72.6389,
+    "zone": "Main Corridors"
+  },
+  "ch_road_sector11": {
+    "name": "CH Road Sector 11",
+    "lat": 23.2156,
+    "lon": 72.6456,
+    "zone": "Main Corridors"
+  },
+  "ch_road_sector21": {
+    "name": "CH Road Sector 21",
+    "lat": 23.2245,
+    "lon": 72.6512,
+    "zone": "Main Corridors"
+  },
+  "gh_road_sector7": {
+    "name": "GH Road Sector 7",
+    "lat": 23.2112,
+    "lon": 72.6334,
+    "zone": "Main Corridors"
+  },
+  "gh_road_sector16": {
+    "name": "GH Road Sector 16",
+    "lat": 23.2189,
+    "lon": 72.6423,
+    "zone": "Main Corridors"
+  },
+  "sector21_junction": {
+    "name": "Sector 21 Main Junction",
+    "lat": 23.2267,
+    "lon": 72.6534,
+    "zone": "Main Corridors"
+  },
+  "sector11_junction": {
+    "name": "Sector 11 Main Junction",
+    "lat": 23.2134,
+    "lon": 72.6467,
+    "zone": "Main Corridors"
+  },
+  "sector30_junction": {
+    "name": "Sector 30 Junction",
+    "lat": 23.2334,
+    "lon": 72.6589,
+    "zone": "Main Corridors"
+  },
+  "gandhinagar_secretariat": {
+    "name": "Gandhinagar Secretariat",
+    "lat": 23.2228,
+    "lon": 72.6510,
+    "zone": "Key Destinations"
+  },
+  "gift_city_gate": {
+    "name": "GIFT City Main Gate",
+    "lat": 23.1562,
+    "lon": 72.6832,
+    "zone": "Key Destinations"
+  },
+  "gandhinagar_railway": {
+    "name": "Gandhinagar Railway Station",
+    "lat": 23.2290,
+    "lon": 72.6411,
+    "zone": "Key Destinations"
+  },
+  "mahatma_mandir": {
+    "name": "Mahatma Mandir Convention Centre",
+    "lat": 23.2178,
+    "lon": 72.6634,
+    "zone": "Key Destinations"
+  },
+  "akshardham_road": {
+    "name": "Akshardham Temple Road",
+    "lat": 23.2117,
+    "lon": 72.6278,
+    "zone": "Key Destinations"
+  },
+  "infocity_it_park": {
+    "name": "Infocity IT Park Gate",
+    "lat": 23.1712,
+    "lon": 72.6289,
+    "zone": "Key Destinations"
+  },
+  "bhat_circle": {
+    "name": "Bhat Circle",
+    "lat": 23.1823,
+    "lon": 72.6634,
+    "zone": "Key Destinations"
+  },
+  "riverfront_north": {
+    "name": "Sabarmati Riverfront North",
+    "lat": 23.2334,
+    "lon": 72.6712,
+    "zone": "Sabarmati River Corridor"
+  },
+  "sector9_river_road": {
+    "name": "Sector 9 River Road",
+    "lat": 23.2089,
+    "lon": 72.6634,
+    "zone": "Sabarmati River Corridor"
+  },
+  "basan_bridge": {
+    "name": "Basan Bridge Approach",
+    "lat": 23.1756,
+    "lon": 72.6756,
+    "zone": "Sabarmati River Corridor"
+  },
+  "indroda_park_road": {
+    "name": "Indroda Nature Park Road",
+    "lat": 23.1934,
+    "lon": 72.6712,
+    "zone": "Sabarmati River Corridor"
+  },
+  "kudasan_circle": {
+    "name": "Kudasan Circle",
+    "lat": 23.1734,
+    "lon": 72.6445,
+    "zone": "Surrounding Areas"
+  },
+  "raysan_junction": {
+    "name": "Raysan Junction",
+    "lat": 23.1645,
+    "lon": 72.6378,
+    "zone": "Surrounding Areas"
+  },
+  "adalaj_circle": {
+    "name": "Adalaj Circle",
+    "lat": 23.1623,
+    "lon": 72.5812,
+    "zone": "Surrounding Areas"
+  }
+}

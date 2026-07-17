@@ -1,0 +1,18 @@
+{
+  "source": "Gandhinagar_dem.tif",
+  "overlay": "Gandhinagar_dem_overlay.png",
+  "crs": "EPSG:4326",
+  "step": 1,
+  "bounds": {
+    "west": 72.54972222222223,
+    "south": 23.10972222222222,
+    "east": 72.74,
+    "north": 23.330277777777777
+  },
+  "statistics": {
+    "sampleMin": 39.59736251831055,
+    "sampleMax": 100.49092864990234,
+    "p2": 54.69865417480469,
+    "p98": 90.01161193847656
+  }
+}
