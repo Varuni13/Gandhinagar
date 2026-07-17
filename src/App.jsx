@@ -802,17 +802,6 @@ function calculateGeometryAreaSquareKilometers(geometry) {
   return areaSquareMeters / 1_000_000;
 }
 
-function buildWardBoundaryPopupContent(feature) {
-  const properties = feature?.properties ?? {};
-  const areaSquareKilometers = calculateGeometryAreaSquareKilometers(feature?.geometry);
-
-  return buildFeatureInfoTable({
-    'Ward Name': properties.sourcewardname || properties.ward_lgd_name || properties.name || 'Unknown',
-    'Ward Number': properties.sourcewardcode || 'Unknown',
-    'Area (km2)': areaSquareKilometers > 0 ? areaSquareKilometers.toFixed(2) : '0.00',
-  });
-}
-
 function normalizeWardName(value) {
   return String(value ?? '')
     .toLowerCase()
@@ -990,11 +979,11 @@ function buildZoneBoundaryPopupContent(feature) {
 function getCityBoundaryLayerStyle(isSelected = false) {
   if (isSelected) {
     return {
-      color: '#b91c1c',
+      color: '#d97706',
       weight: 4,
       opacity: 1,
       fill: true,
-      fillColor: '#fca5a5',
+      fillColor: '#fcd34d',
       fillOpacity: 0.14,
     };
   }
@@ -1007,16 +996,6 @@ function getCityBoundaryLayerStyle(isSelected = false) {
     fillColor: '#111827',
     fillOpacity: 0.03,
   };
-}
-
-function buildCityBoundaryPopupContent(feature) {
-  const properties = feature?.properties ?? {};
-  const areaSquareKilometers = calculateGeometryAreaSquareKilometers(feature?.geometry);
-
-  return buildFeatureInfoTable({
-    'Boundary Name': properties.boundary_name || 'City Boundary',
-    'Area (km2)': areaSquareKilometers > 0 ? areaSquareKilometers.toFixed(2) : '0.00',
-  });
 }
 
 function getTimeSeriesValue(properties, key, index) {
@@ -2010,18 +1989,6 @@ function getAdministrativeOverlayStyle(overlay, isSelected = false) {
   return getWardBoundaryLayerStyle(isSelected);
 }
 
-function getAdministrativeOverlayPopupContent(overlay, feature) {
-  if (overlay.kind === 'zone') {
-    return buildZoneBoundaryPopupContent(feature);
-  }
-
-  if (overlay.kind === 'city-boundary') {
-    return buildCityBoundaryPopupContent(feature);
-  }
-
-  return buildWardBoundaryPopupContent(feature);
-}
-
 async function initializeAdministrativeBoundaryOverrides(api, cityId) {
   if (!api?.map || !api?.layerControl || !window.L) {
     return [];
@@ -2064,13 +2031,6 @@ async function initializeAdministrativeBoundaryOverrides(api, cityId) {
           }
         }
 
-        featureLayer.bindPopup(
-          getAdministrativeOverlayPopupContent(overlay, feature),
-          {
-            maxWidth: 360,
-            className: 'foliumpopup',
-          },
-        );
         featureLayer.on('click', () => {
           if (selectedWardLayer && selectedWardLayer !== featureLayer) {
             selectedWardLayer.setStyle(getAdministrativeOverlayStyle(overlay, false));
@@ -2081,7 +2041,6 @@ async function initializeAdministrativeBoundaryOverrides(api, cityId) {
           if (typeof featureLayer.bringToFront === 'function') {
             featureLayer.bringToFront();
           }
-          featureLayer.openPopup();
         });
       },
     });
