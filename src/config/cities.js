@@ -6,7 +6,10 @@ export const cityDashboards = [
     subtitle: 'Live traffic, hydrology and administrative layers',
     loadingLabel: 'Gandhinagar',
     sourceLabel: 'Gandhinagar Municipal Corporation (GMC)',
-    defaultVisibleOverlays: ['Administrative / Boundaries | City Boundary'],
+    defaultVisibleOverlays: [
+      'Administrative / Boundaries | City Boundary',
+      'Flood Mobility DSS | Project Focus Area',
+    ],
     initialFocusOverlay: 'Administrative / Boundaries | City Boundary',
     demOverlay: {
       label: 'Terrain | Gandhinagar DEM',

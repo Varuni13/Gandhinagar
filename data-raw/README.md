@@ -37,4 +37,18 @@ Copernicus DEM) while sourcing Gandhinagar data, kept for provenance/reprocessin
   earlier version didn't clip to the boundary at all, so both layers sprawled into
   Ahmedabad, Kadi, Mansa, etc. — now clipped the same way as Roads.
 
+- `gandhinagar_flood_dss_focus_polygons_raw.json` / `gandhinagar_flood_dss_focus_points_raw.json`
+  — OSM data for the Gandhinagar Flood Mobility DSS project's scope-of-work area (Sector
+  8-10, 18-21, 30, and the villages of Indroda and Borij), fetched via Overpass and
+  Nominatim. Combined into `public/administrative/Gandhinagar_flood_dss_focus_area.geojson`
+  by `scripts/build_flood_dss_focus_area.cjs`, which also computes a buffered convex hull
+  outline enclosing everything as a single "Project Focus Area" study boundary.
+
+  Data availability was inconsistent: only Sector 8, Sector 10, Sector 21, and Indroda have
+  real mapped polygons in OSM. Sectors 9, 18, 19, 20, and 30 exist only as unmapped
+  neighbourhood point markers (no boundary drawn yet). **Borij is not mapped as a distinct
+  place in OSM at all** — the only "Borij"-named entity found is a Jain temple ("Borij Jain
+  Derasar"), used as an approximate proxy location and flagged as such in the layer's popup
+  (`geometry_source` property marks every feature's actual provenance/precision).
+
 None of these are read by the app directly — `public/` holds the processed, live files.

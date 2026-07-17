@@ -82,6 +82,14 @@ const administrativeBoundaryOverrideConfigs = [
   },
 ];
 
+const floodDssFocusAreaOverlayConfigs = [
+  {
+    cityId: 'gnr',
+    label: 'Flood Mobility DSS | Project Focus Area',
+    url: '/administrative/Gandhinagar_flood_dss_focus_area.geojson',
+  },
+];
+
 const trafficOverlayConfigs = [
   {
     cityId: 'gnr',
@@ -997,6 +1005,114 @@ function getCityBoundaryLayerStyle(isSelected = false) {
     fillColor: '#111827',
     fillOpacity: 0.03,
   };
+}
+
+function getFloodDssFocusAreaStyle(feature) {
+  const kind = feature?.properties?.kind;
+
+  if (kind === 'study_area_outline') {
+    return {
+      color: '#ea580c',
+      weight: 2.5,
+      opacity: 0.9,
+      dashArray: '10 6',
+      fill: true,
+      fillColor: '#fdba74',
+      fillOpacity: 0.08,
+    };
+  }
+
+  if (feature?.geometry?.type === 'Polygon') {
+    return {
+      color: '#c2410c',
+      weight: 2,
+      opacity: 0.95,
+      fill: true,
+      fillColor: '#fb923c',
+      fillOpacity: 0.28,
+    };
+  }
+
+  return {};
+}
+
+function createFloodDssFocusAreaPointMarker(feature, latlng) {
+  const isApproximate = String(feature?.properties?.geometry_source ?? '').startsWith('approximate');
+  return window.L.circleMarker(latlng, {
+    radius: 7,
+    stroke: true,
+    color: '#c2410c',
+    weight: 2,
+    dashArray: isApproximate ? '3 3' : undefined,
+    fill: true,
+    fillColor: '#fb923c',
+    fillOpacity: 0.85,
+  });
+}
+
+function buildFloodDssFocusAreaPopupContent(feature) {
+  const properties = feature?.properties ?? {};
+
+  if (properties.kind === 'study_area_outline') {
+    return buildFeatureInfoTable({
+      Area: properties.name,
+      Description: 'Approximate outline enclosing all focus sectors/villages (Gandhinagar Flood Mobility DSS scope of work)',
+    });
+  }
+
+  const rows = {
+    Name: properties.name,
+    Type: properties.kind === 'village' ? 'Village' : 'Sector',
+  };
+
+  if (String(properties.geometry_source ?? '').includes('no_polygon_mapped')) {
+    rows.Note = 'Approximate location - precise boundary not yet available in source data';
+  } else if (String(properties.geometry_source ?? '').startsWith('approximate')) {
+    rows.Note = 'Approximate location (nearby landmark used as proxy) - not an authoritative village boundary';
+  }
+
+  return buildFeatureInfoTable(rows);
+}
+
+async function initializeFloodDssFocusAreaOverlays(api, cityId) {
+  if (!api?.map || !api?.layerControl || !window.L) {
+    return [];
+  }
+
+  const applicableOverlays = floodDssFocusAreaOverlayConfigs.filter((overlay) => overlay.cityId === cityId);
+  const createdLayers = [];
+
+  for (const overlay of applicableOverlays) {
+    const existingEntry = Object.values(api.layerControl?._layers ?? {}).find(
+      (entry) => entry?.overlay && entry.name === overlay.label,
+    );
+    if (existingEntry?.layer) {
+      createdLayers.push(existingEntry.layer);
+      continue;
+    }
+
+    const response = await fetch(resolveAssetUrl(overlay.url));
+    if (!response.ok) {
+      throw new Error(`Could not load ${overlay.label}.`);
+    }
+
+    const geojson = await response.json();
+    const layer = window.L.geoJSON(geojson, {
+      style: getFloodDssFocusAreaStyle,
+      pointToLayer: createFloodDssFocusAreaPointMarker,
+      onEachFeature: (feature, featureLayer) => {
+        featureLayer.bindPopup(buildFloodDssFocusAreaPopupContent(feature), {
+          maxWidth: 340,
+          className: 'foliumpopup',
+        });
+      },
+    });
+
+    api.layerControl.addOverlay(layer, overlay.label);
+    createdLayers.push(layer);
+  }
+
+  return createdLayers;
 }
 
 function getTimeSeriesValue(properties, key, index) {
@@ -2488,6 +2604,7 @@ export default function App() {
       removeOverlayEntriesByPrefix(api, removedDashboardOverlayPrefixes);
       setLoadingMessage(`Preparing ${selectedCity.loadingLabel} basemap and overlays...`);
       await initializeAdministrativeBoundaryOverrides(api, selectedCity.id);
+      await initializeFloodDssFocusAreaOverlays(api, selectedCity.id);
       await initializeDrainageNetworkOverlays(api, selectedCity.id);
       await initializeHydrologyOverlays(api, selectedCity.id);
       await initializeTransportGeoJsonOverlays(api, selectedCity.id);
