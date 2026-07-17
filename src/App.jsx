@@ -457,6 +457,7 @@ function bootstrapLeafletDashboard(mapContainerId) {
   const map = window.L.map(mapContainerId, {
     center: [23.2156, 72.6369],
     zoom: 12,
+    preferCanvas: true,
   });
 
   const baseTileLayer = window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
