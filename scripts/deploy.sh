@@ -7,6 +7,24 @@ PORT=9145
 
 cd "$APP_DIR"
 
+echo "==> Checking for manually-copied data files (not in git, see DATA_SOURCES.md)..."
+missing=0
+for f in \
+  public/transport/Gandhinagar_roads.geojson \
+  public/transport/Gandhinagar_railway.geojson \
+  public/transport/Gandhinagar_metro.geojson \
+  public/DEM/Gandhinagar_dem_overlay.png
+do
+  if [ ! -s "$f" ]; then
+    echo "MISSING: $f (git pull won't bring this — copy it manually, see DATA_SOURCES.md)" >&2
+    missing=1
+  fi
+done
+if [ "$missing" -eq 1 ]; then
+  echo "FAIL: one or more data files are missing. Aborting before building a broken dashboard." >&2
+  exit 1
+fi
+
 echo "==> Building..."
 npm run build
 

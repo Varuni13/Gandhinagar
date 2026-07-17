@@ -9,7 +9,13 @@ Data/
 traffic_collector/data/
 traffic_collector/venv/
 traffic_collector/.venv/
-data-raw/*.tif
 __pycache__/
 *.pyc
 public/traffic/
+
+# High-memory data files: deployed by manual copy to the server, not via git.
+# See DATA_SOURCES.md / data-raw/README.md for what each file is and where it's used.
+data-raw/*
+!data-raw/README.md
+public/transport/*.geojson
+public/DEM/*.png

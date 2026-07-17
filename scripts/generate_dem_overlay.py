@@ -3,15 +3,17 @@ import json
 import math
 
 import numpy as np
+import shapely
 from PIL import Image
 from tifffile import TiffFile, imread
 
 
 workspace_root = Path.cwd()
 dem_dir = workspace_root / "public" / "DEM"
-source_file = dem_dir / "Gandhinagar_dem.tif"
+source_file = workspace_root / "data-raw" / "Gandhinagar_dem.tif"
 png_file = dem_dir / "Gandhinagar_dem_overlay.png"
 metadata_file = dem_dir / "Gandhinagar_dem.metadata.json"
+boundary_file = workspace_root / "public" / "administrative" / "Gandhinagar_city_boundary.geojson"
 
 
 def hex_to_rgb(value: str) -> np.ndarray:
@@ -99,6 +101,23 @@ palette_stops = [
 
 rgb = interpolate_palette(normalized, palette_stops)
 alpha = (110 + normalized * 120).astype(np.uint8)
+
+# Mask out pixels outside the actual Gandhinagar city boundary so the overlay
+# doesn't paint a rectangle beyond the city limits.
+boundary_geojson = json.loads(boundary_file.read_text(encoding="utf-8"))
+boundary_polygon = shapely.geometry.shape(boundary_geojson["features"][0]["geometry"]).buffer(0)
+
+rows, cols = sample.shape
+col_indices = np.arange(cols)
+row_indices = np.arange(rows)
+lon_grid = left + (col_indices * step) * pixel_scale_x
+lat_grid = top - (row_indices * step) * pixel_scale_y
+lon_mesh, lat_mesh = np.meshgrid(lon_grid, lat_grid)
+
+points = shapely.points(lon_mesh.ravel(), lat_mesh.ravel())
+inside_mask = shapely.contains(boundary_polygon, points).reshape(rows, cols)
+
+alpha = np.where(inside_mask, alpha, 0).astype(np.uint8)
 
 rgba = np.dstack([rgb, alpha])
 Image.fromarray(rgba, mode="RGBA").save(png_file, optimize=True)

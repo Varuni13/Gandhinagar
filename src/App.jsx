@@ -105,6 +105,51 @@ const hydrologyGeoJsonOverlayConfigs = [
   },
 ];
 
+const transportGeoJsonOverlayConfigs = [
+  {
+    cityId: 'gnr',
+    label: 'Transport | Roads',
+    url: '/transport/Gandhinagar_roads.geojson',
+    color: '#78716c',
+    weight: 2.2,
+    popupFields: [
+      { key: 'name', label: 'Road Name' },
+      { key: 'ref', label: 'Route Ref' },
+      { key: 'highway', label: 'Type' },
+    ],
+  },
+  {
+    cityId: 'gnr',
+    label: 'Transport | Railway',
+    url: '/transport/Gandhinagar_railway.geojson',
+    color: '#b91c1c',
+    weight: 2.4,
+    dashArray: '8 4',
+    markerRadius: 5,
+    markerFillOpacity: 0.95,
+    popupFields: [
+      { key: 'name', label: 'Station / Line Name' },
+      { key: 'railway', label: 'Type' },
+      { key: 'operator', label: 'Operator' },
+    ],
+  },
+  {
+    cityId: 'gnr',
+    label: 'Transport | Metro',
+    url: '/transport/Gandhinagar_metro.geojson',
+    color: '#0369a1',
+    weight: 2.4,
+    dashArray: '2 6',
+    markerRadius: 5,
+    markerFillOpacity: 0.95,
+    popupFields: [
+      { key: 'name', label: 'Station / Line Name' },
+      { key: 'railway', label: 'Type' },
+      { key: 'network', label: 'Network' },
+    ],
+  },
+];
+
 const removedAdministrativeOverlayLabels = [
   'Administrative / Boundaries | Sector Boundary',
   'Administrative / Boundaries | Colony Boundary',
@@ -970,7 +1015,6 @@ function buildCityBoundaryPopupContent(feature) {
 
   return buildFeatureInfoTable({
     'Boundary Name': properties.boundary_name || 'City Boundary',
-    'Ward Count': properties.ward_count || 0,
     'Area (km2)': areaSquareKilometers > 0 ? areaSquareKilometers.toFixed(2) : '0.00',
   });
 }
@@ -1610,6 +1654,7 @@ function getShapefileOverlayStyle(overlay, geometryType = '') {
     opacity: 0.95,
     lineCap: 'round',
     lineJoin: 'round',
+    dashArray: overlay.dashArray,
     fill: isPolygon,
     fillColor: isPolygon ? overlay.fillColor ?? overlay.color : undefined,
     fillOpacity: isPolygon ? overlay.fillOpacity ?? 0.18 : 0,
@@ -1890,6 +1935,51 @@ async function initializeHydrologyOverlays(api, cityId) {
       api.map.addLayer(layer);
     }
 
+    createdLayers.push(layer);
+  }
+
+  return createdLayers;
+}
+
+async function initializeTransportGeoJsonOverlays(api, cityId) {
+  if (!api?.map || !api?.layerControl || !window.L) {
+    return [];
+  }
+
+  const applicableOverlays = transportGeoJsonOverlayConfigs.filter((overlay) => overlay.cityId === cityId);
+  if (applicableOverlays.length === 0) {
+    return [];
+  }
+
+  const createdLayers = [];
+
+  for (const overlay of applicableOverlays) {
+    const existingEntry = Object.values(api.layerControl?._layers ?? {}).find(
+      (entry) => entry?.overlay && entry.name === overlay.label,
+    );
+    if (existingEntry?.layer) {
+      createdLayers.push(existingEntry.layer);
+      continue;
+    }
+
+    const response = await fetch(resolveAssetUrl(overlay.url));
+    if (!response.ok) {
+      throw new Error(`Could not load ${overlay.label}.`);
+    }
+
+    const geojson = await response.json();
+    const layer = window.L.geoJSON(geojson, {
+      style: (feature) => getShapefileOverlayStyle(overlay, feature?.geometry?.type),
+      pointToLayer: (_feature, latlng) => createShapefilePointMarker(overlay, latlng),
+      onEachFeature: (feature, featureLayer) => {
+        featureLayer.bindPopup(buildOverlayPopupContent(overlay, feature), {
+          maxWidth: 360,
+          className: 'foliumpopup',
+        });
+      },
+    });
+
+    api.layerControl.addOverlay(layer, overlay.label);
     createdLayers.push(layer);
   }
 
@@ -2440,6 +2530,7 @@ export default function App() {
       await initializeAdministrativeBoundaryOverrides(api, selectedCity.id);
       await initializeDrainageNetworkOverlays(api, selectedCity.id);
       await initializeHydrologyOverlays(api, selectedCity.id);
+      await initializeTransportGeoJsonOverlays(api, selectedCity.id);
       await initializeTrafficOverlays(
         api,
         selectedCity.id,
