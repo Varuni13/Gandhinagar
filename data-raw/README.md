@@ -19,16 +19,22 @@ Copernicus DEM) while sourcing Gandhinagar data, kept for provenance/reprocessin
   don't spill into neighboring areas (Kolavada, Nava Dharmpur, etc.) beyond the city.
 - `gandhinagar_railway_raw.json` — OSM rail infrastructure via Overpass
   (`railway=rail|light_rail|subway|monorail|tram` ways + `railway=station|halt` nodes),
-  wider bbox (22.97,72.30,23.60,73.06) since corridors extend beyond the city. Split by
-  `scripts/convert_railway_metro.cjs` into two separate layers based on OSM tags
-  (`station=subway` / `network` containing "Metro" / `railway=subway`):
+  fetched with a wide bbox (22.97,72.30,23.60,73.06) since corridors extend beyond the
+  city, then clipped down to the actual `Gandhinagar_city_boundary.geojson` polygon by
+  `scripts/convert_railway_metro.cjs` (lines via bboxClip + intersects, stations via
+  point-in-polygon) — so only the portion actually inside/crossing the city survives.
+  Split into two separate layers based on OSM tags (`station=subway` / `network`
+  containing "Metro" / `railway=subway`):
   - `public/transport/Gandhinagar_railway.geojson` — Indian Railways (Western Railway):
-    Kalol Junction, Sabarmati Junction, Naroda, etc.
+    just the short stretch that clips the city's edge, plus Gandhinagar Capital station.
   - `public/transport/Gandhinagar_metro.geojson` — Gandhinagar/Ahmedabad Metro (Gujarat
-    Metro Rail Corporation): GIFT City, Mahatma Mandir, Sachivalaya, Akshardham, etc.
+    Metro Rail Corporation): the in-city corridor with 12 stations (Sachivalaya,
+    Akshardham, Mahatma Mandir, Infocity, etc.).
 
   Note: an earlier version of this fetch only queried `rail|light_rail` and missed the
   metro line's `railway=subway` tagging entirely, so metro stations appeared as floating
-  points with no connecting line. Fixed by including `subway` in the way filter.
+  points with no connecting line. Fixed by including `subway` in the way filter. An even
+  earlier version didn't clip to the boundary at all, so both layers sprawled into
+  Ahmedabad, Kadi, Mansa, etc. — now clipped the same way as Roads.
 
 None of these are read by the app directly — `public/` holds the processed, live files.
