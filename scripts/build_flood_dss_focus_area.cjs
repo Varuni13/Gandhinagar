@@ -3,11 +3,11 @@ const path = require('path');
 const turf = require('@turf/turf');
 
 const POLY_RAW = path.join(__dirname, '..', 'data-raw', 'gandhinagar_flood_dss_focus_polygons_raw.json');
-const POINTS_RAW = path.join(__dirname, '..', 'data-raw', 'gandhinagar_flood_dss_focus_points_raw.json');
+const TRACED_RAW = path.join(__dirname, '..', 'data-raw', 'gandhinagar_flood_dss_traced_sectors.geojson');
 const OUT = path.join(__dirname, '..', 'public', 'administrative', 'Gandhinagar_flood_dss_focus_area.geojson');
 
 const polyData = JSON.parse(fs.readFileSync(POLY_RAW, 'utf8'));
-const pointsData = JSON.parse(fs.readFileSync(POINTS_RAW, 'utf8'));
+const tracedData = JSON.parse(fs.readFileSync(TRACED_RAW, 'utf8'));
 
 const features = [];
 const hullInputPoints = [];
@@ -29,39 +29,12 @@ for (const el of polyData.elements) {
   coordinates[0].forEach(([lon, lat]) => hullInputPoints.push([lon, lat]));
 }
 
-// Point-only sectors (9, 18, 19, 20, 30) - no polygon mapped in OSM yet
-for (const el of pointsData.elements) {
-  if (el.type !== 'node') continue;
-  if (!/^Sector (9|18|19|20|30)$/.test(el.tags.name || '')) continue;
-  features.push({
-    type: 'Feature',
-    properties: {
-      name: el.tags.name,
-      kind: 'sector',
-      geometry_source: 'osm_neighbourhood_point_no_polygon_mapped',
-    },
-    geometry: { type: 'Point', coordinates: [el.lon, el.lat] },
-  });
-  hullInputPoints.push([el.lon, el.lat]);
-}
-
-// Borij: not mapped as a distinct place in OSM at all. Using the nearby
-// "Borij Jain Derasar" temple as an approximate proxy location - flagged
-// explicitly as approximate, not an authoritative village center/boundary.
-const borijProxy = pointsData.elements.find((el) => el.tags?.name === 'Borij Jain Derasar');
-if (borijProxy) {
-  const lat = borijProxy.lat ?? borijProxy.center?.lat;
-  const lon = borijProxy.lon ?? borijProxy.center?.lon;
-  features.push({
-    type: 'Feature',
-    properties: {
-      name: 'Borij',
-      kind: 'village',
-      geometry_source: 'approximate_proxy_no_osm_entity_for_borij_itself',
-    },
-    geometry: { type: 'Point', coordinates: [lon, lat] },
-  });
-  hullInputPoints.push([lon, lat]);
+// Sectors 9, 18, 19, 20, 30 and Borij: no polygon mapped in OSM, so these are
+// manually traced from satellite imagery (see scripts/trace_missing_sectors.cjs
+// and data-raw/README.md for the tracing method and per-area confidence notes).
+for (const feature of tracedData.features) {
+  features.push(feature);
+  feature.geometry.coordinates[0].forEach(([lon, lat]) => hullInputPoints.push([lon, lat]));
 }
 
 // Unifying "study area" outline: convex hull of every polygon vertex + point,
@@ -90,5 +63,4 @@ fs.writeFileSync(OUT, JSON.stringify({ type: 'FeatureCollection', features: outF
 console.log(`${outFeatures.length} features -> ${OUT}`);
 console.log(`  - 1 study-area outline (convex hull)`);
 console.log(`  - ${features.filter((f) => f.properties.geometry_source === 'osm_mapped_polygon').length} real OSM polygons`);
-console.log(`  - ${features.filter((f) => f.properties.geometry_source.includes('point')).length} point-only sectors`);
-console.log(`  - ${features.filter((f) => f.properties.name === 'Borij').length} approximate (Borij)`);
+console.log(`  - ${features.filter((f) => f.properties.geometry_source?.startsWith('manually_traced')).length} manually traced from satellite imagery`);

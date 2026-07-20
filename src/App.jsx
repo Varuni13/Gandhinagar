@@ -1023,13 +1023,15 @@ function getFloodDssFocusAreaStyle(feature) {
   }
 
   if (feature?.geometry?.type === 'Polygon') {
+    const isTraced = String(feature?.properties?.geometry_source ?? '').startsWith('manually_traced');
     return {
       color: '#c2410c',
       weight: 2,
       opacity: 0.95,
+      dashArray: isTraced ? '4 3' : undefined,
       fill: true,
       fillColor: '#fb923c',
-      fillOpacity: 0.28,
+      fillOpacity: isTraced ? 0.22 : 0.28,
     };
   }
 
@@ -1065,10 +1067,12 @@ function buildFloodDssFocusAreaPopupContent(feature) {
     Type: properties.kind === 'village' ? 'Village' : 'Sector',
   };
 
-  if (String(properties.geometry_source ?? '').includes('no_polygon_mapped')) {
-    rows.Note = 'Approximate location - precise boundary not yet available in source data';
-  } else if (String(properties.geometry_source ?? '').startsWith('approximate')) {
-    rows.Note = 'Approximate location (nearby landmark used as proxy) - not an authoritative village boundary';
+  if (String(properties.geometry_source ?? '').startsWith('manually_traced')) {
+    const confidence = properties.trace_confidence ?? 'unknown';
+    rows.Boundary = `Manually traced from satellite imagery (${confidence} confidence)`;
+    if (properties.trace_note) {
+      rows.Note = properties.trace_note;
+    }
   }
 
   return buildFeatureInfoTable(rows);

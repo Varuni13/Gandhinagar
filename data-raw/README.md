@@ -48,7 +48,27 @@ Copernicus DEM) while sourcing Gandhinagar data, kept for provenance/reprocessin
   real mapped polygons in OSM. Sectors 9, 18, 19, 20, and 30 exist only as unmapped
   neighbourhood point markers (no boundary drawn yet). **Borij is not mapped as a distinct
   place in OSM at all** — the only "Borij"-named entity found is a Jain temple ("Borij Jain
-  Derasar"), used as an approximate proxy location and flagged as such in the layer's popup
-  (`geometry_source` property marks every feature's actual provenance/precision).
+  Derasar").
+
+- `gandhinagar_flood_dss_traced_sectors.geojson` — for the 6 areas above with no real OSM
+  polygon (Sectors 9, 18, 19, 20, 30, Borij), boundaries were manually traced by hand from
+  satellite imagery (Esri World Imagery, fetched via `scripts/trace_missing_sectors.cjs`,
+  which overlays a pixel grid on each image to read off corner coordinates precisely, then
+  converts pixel -> lon/lat via linear interpolation over the known image bbox). Each
+  feature carries a `trace_confidence` (`high`/`medium`/`low`) and `trace_note` describing
+  what was actually visible:
+  - **High confidence** (Sector 19): clear road-bounded residential block, all four sides
+    visible.
+  - **Medium confidence** (Sector 20, Sector 30, Borij): partially bounded — some sides
+    are real roads, others are the image frame edge (actual extent may be larger), or (Borij)
+    traced from the visible informal settlement cluster near the temple proxy rather than
+    any authoritative boundary.
+  - **Low confidence** (Sector 9, Sector 18): mostly forest/park land (Indroda-adjacent
+    green belt), not a built residential grid — only 1-2 bounding roads were clearly
+    identifiable, so these traces are the least reliable of the six.
+
+  This is disclosed via the `geometry_source` property
+  (`manually_traced_from_satellite_imagery_approximate`) and shown directly in the layer's
+  popup — never presented as equivalent to the real OSM-mapped polygons.
 
 None of these are read by the app directly — `public/` holds the processed, live files.
