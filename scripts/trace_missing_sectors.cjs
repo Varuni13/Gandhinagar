@@ -13,16 +13,26 @@ const traces = [
     kind: 'sector',
     confidence: 'low',
     bbox: [72.657655, 23.209173, 72.668655, 23.218523],
-    pixels: [[90, 0], [900, 480], [900, 765], [40, 765]],
-    note: 'Mostly forest/park land (Indroda-adjacent green belt), not a built residential grid - only 1-2 clear bounding roads visible.',
+    // Top edge capped at py=262 (~lat 23.2153, the Sector 9/18 midpoint) - the
+    // original trace extended to the full frame (py=0) and overlapped Sector 18
+    // by 47% of its area. Sector 9 and 18 are both low-confidence forest traces
+    // with no clear dividing feature visible, so this is a deliberate midpoint
+    // split rather than a real observed boundary.
+    pixels: [[40, 262], [900, 262], [900, 765], [40, 765]],
+    note: 'Mostly forest/park land (Indroda-adjacent green belt), not a built residential grid - only 1-2 clear bounding roads visible. Northern edge is an arbitrary midpoint split with Sector 18, not an observed boundary (the two traces originally overlapped 47%).',
   },
   {
     name: 'Sector 18',
     kind: 'sector',
     confidence: 'low',
     bbox: [72.659244, 23.212112, 72.670244, 23.221462],
-    pixels: [[0, 90], [900, 190], [900, 765], [0, 765]],
-    note: 'Mostly forest/park land, not a built residential grid - only 1-2 clear bounding roads visible.',
+    // Bottom edge capped at py=502 (~lat 23.2153, the Sector 9/18 midpoint) -
+    // same overlap fix as Sector 9, from the other side. Right/east edge
+    // pulled back from the frame edge (px=900) to px=470 (~lon 72.6650) to
+    // defer to Sector 19's high-confidence western boundary, which it was
+    // overlapping by ~20% of Sector 18's area.
+    pixels: [[0, 90], [470, 142], [470, 502], [0, 502]],
+    note: 'Mostly forest/park land, not a built residential grid - only 1-2 clear bounding roads visible. Southern and eastern edges are arbitrary splits deferring to the adjacent Sector 9 and Sector 19 traces, not observed boundaries.',
   },
   {
     name: 'Sector 19',
